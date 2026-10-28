@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 120 120"><defs>
+<radialGradient id="gG" cx="50%" cy="42%" r="75%"><stop offset="0%" stop-color="#E0603F"/><stop offset="55%" stop-color="#C4432B"/><stop offset="100%" stop-color="#7E2416"/></radialGradient>
+<radialGradient id="gGU" gradientUnits="userSpaceOnUse" cx="60" cy="50.4" r="90"><stop offset="0%" stop-color="#E0603F"/><stop offset="55%" stop-color="#C4432B"/><stop offset="100%" stop-color="#7E2416"/></radialGradient>
+<radialGradient id="g3Sun" cx="50%" cy="38%" r="70%"><stop offset="0%" stop-color="#FFEFC6"/><stop offset="60%" stop-color="#FFD98A"/><stop offset="100%" stop-color="#F2BE63"/></radialGradient>
+<radialGradient id="g3Halo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFD98A" stop-opacity="0.85"/><stop offset="100%" stop-color="#FFD98A" stop-opacity="0"/></radialGradient>
+<linearGradient id="g3Body" x1="0%" y1="0%" x2="70%" y2="100%"><stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.38"/><stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="100%" stop-color="#631315" stop-opacity="0.22"/></linearGradient>
+<linearGradient id="g3Sill" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#8A2A22"/><stop offset="30%" stop-color="#631315"/><stop offset="100%" stop-color="#43090B"/></linearGradient>
+<filter id="g3Soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3"/></filter>
+<clipPath id="clipK"><path d="M60 37.9 C68.4 49.6 90.2 68.1 90.2 84.9 C90.2 101.7 76.8 113.4 60 113.4 C43.2 113.4 29.8 101.7 29.8 84.9 C29.8 68.1 51.6 49.6 60 37.9 Z"/></clipPath>
+<symbol id="kio" viewBox="0 0 100 100">
+<path d="M50 6 C60 20 86 42 86 62 C86 82 70 96 50 96 C30 96 14 82 14 62 C14 42 40 20 50 6 Z" fill="#EE7A5E" stroke="#631315" stroke-width="3.5" stroke-linejoin="round"/>
+<ellipse cx="38" cy="32" rx="4.5" ry="8" transform="rotate(30 38 32)" fill="#FFFFFF" opacity="0.6"/>
+<path d="M50 50 C44 42 24 42 24 58 C24 74 38 82 50 82 C62 82 76 74 76 58 C76 42 56 42 50 50 Z" fill="#FCE9CF"/>
+<ellipse cx="31" cy="70" rx="4.5" ry="2.8" fill="#F29A86"/><ellipse cx="69" cy="70" rx="4.5" ry="2.8" fill="#F29A86"/>
+<circle cx="39" cy="61" r="7" fill="#631315"/><circle cx="61" cy="61" r="7" fill="#631315"/>
+<circle cx="41.5" cy="58.5" r="2.5" fill="#FFFFFF"/><circle cx="63.5" cy="58.5" r="2.5" fill="#FFFFFF"/>
+<path d="M45 70 Q50 75 55 70" fill="none" stroke="#631315" stroke-width="2.6" stroke-linecap="round"/>
+</symbol></defs><rect width="120" height="120" fill="url(#gG)"/><g stroke="#F2BE63" stroke-width="6" stroke-linecap="round" opacity="0.9">
+<line x1="60" y1="14" x2="60" y2="4"/><line x1="26" y1="28" x2="19" y2="21"/><line x1="94" y1="28" x2="101" y2="21"/><line x1="12" y1="58" x2="3" y2="56"/><line x1="108" y1="58" x2="117" y2="56"/></g>
+<circle cx="60" cy="70" r="52" fill="url(#g3Halo)"/>
+<circle cx="60" cy="72" r="40" fill="url(#g3Sun)"/>
+<ellipse cx="60" cy="104" rx="34" ry="8" fill="#43090B" opacity="0.35" filter="url(#g3Soft)"/>
+<use href="#kio" x="18" y="38" width="84" height="84"/>
+<g clip-path="url(#clipK)"><path d="M60 37.9 C68.4 49.6 90.2 68.1 90.2 84.9 C90.2 101.7 76.8 113.4 60 113.4 C43.2 113.4 29.8 101.7 29.8 84.9 C29.8 68.1 51.6 49.6 60 37.9 Z" fill="url(#g3Body)"/></g>
+<path d="M34 95 C31 88 31 78 35 70" fill="none" stroke="#FFE7C2" stroke-width="2.4" stroke-linecap="round" opacity="0.65"/>
+<rect x="-4" y="106" width="128" height="20" rx="8" fill="url(#g3Sill)"/>
+<rect x="2" y="107.5" width="116" height="2.5" rx="1.2" fill="#A84A3A" opacity="0.8"/>
+<ellipse cx="31" cy="106" rx="9" ry="6.5" fill="#EE7A5E" stroke="#631315" stroke-width="2.8"/><ellipse cx="29" cy="104" rx="4" ry="2.4" fill="#FFFFFF" opacity="0.4"/>
+<ellipse cx="89" cy="106" rx="9" ry="6.5" fill="#EE7A5E" stroke="#631315" stroke-width="2.8"/><ellipse cx="87" cy="104" rx="4" ry="2.4" fill="#FFFFFF" opacity="0.4"/>
+<path transform="translate(10 12) scale(0.7)" d="M10 0 Q11 9 20 10 Q11 11 10 20 Q9 11 0 10 Q9 9 10 0 Z" fill="#FFF3E2"/>
+<path transform="translate(98 20) scale(0.45)" d="M10 0 Q11 9 20 10 Q11 11 10 20 Q9 11 0 10 Q9 9 10 0 Z" fill="#E8B65A"/></svg>

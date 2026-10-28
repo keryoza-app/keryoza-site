@@ -1,0 +1,294 @@
+/* Keryoza legal pages. Adult register (DESIGN.md): sand, ink, lapis, Cairo. No amber. */
+
+@font-face {
+  font-family: "Cairo";
+  src: url("cairo.woff") format("woff");
+  font-weight: 400 600;
+  font-display: optional; /* preloaded; never swaps late, so nothing jumps */
+}
+@font-face {
+  font-family: "Kz Wordmark";
+  src: url("baloo-wordmark.woff") format("woff");
+  font-weight: 700;
+  font-display: block;
+}
+@font-face {
+  font-family: "Kz Lockup";
+  src: url("outfit-lockup.woff") format("woff");
+  font-weight: 500;
+  font-display: block;
+}
+
+:root {
+  --sand: #EFE7DA;
+  --panel: #FBF6EE;
+  --ink: #1E2B33;
+  --warm-ink: #54473A;
+  --muted: #7A6B5A;
+  --lapis: #34618E;
+  --hairline: rgba(30, 43, 51, 0.12);
+  --body-size: 1.0625rem;
+  --body-leading: 1.7;
+  color-scheme: light;
+}
+:lang(ar) {
+  --body-size: 1.125rem; /* Arabic reads best a step larger */
+  --body-leading: 1.95;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--sand);
+  color: var(--ink);
+  font-family: "Cairo", "Segoe UI", Tahoma, system-ui, sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-weight: 400;
+}
+
+a {
+  color: var(--lapis);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  overflow-wrap: anywhere;
+}
+a:hover { text-decoration-thickness: 2px; }
+a[href^="mailto:"] { unicode-bidi: isolate; direction: ltr; }
+
+:focus-visible {
+  outline: 2px solid var(--lapis);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip {
+  position: absolute;
+  inset-inline-start: 1rem;
+  inset-block-start: -10rem;
+  padding: 0.5rem 1rem;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  z-index: 1;
+}
+.skip:focus { inset-block-start: 1rem; }
+
+/* ---------- frame ---------- */
+
+.wrap {
+  max-inline-size: 66rem;
+  margin-inline: auto;
+}
+
+.site-head,
+.site-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  line-height: 1;
+}
+.brand img {
+  inline-size: 48px;
+  block-size: 48px;
+  border-radius: 13px; /* brand icon mask, about 28% */
+}
+.brand-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+.brand-ar {
+  font-family: "Kz Wordmark", "Cairo", sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.brand-lat {
+  font-family: "Kz Lockup", "Segoe UI", sans-serif;
+  font-weight: 500;
+  font-size: 0.6875rem;
+  letter-spacing: 0.33em;
+  color: var(--warm-ink); /* muted is only 4.2:1 on sand */
+  direction: ltr;
+  text-align: start;
+}
+[dir="rtl"] .brand-lat { text-align: end; }
+
+.lang {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  padding-inline: 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--panel);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+/* ---------- document ---------- */
+
+.doc {
+  background: var(--panel);
+  border-block: 1px solid var(--hairline);
+  padding: 2rem 1.25rem 2.5rem;
+}
+
+.doc-head {
+  padding-block-end: 1.5rem;
+  margin-block-end: 1.75rem;
+  border-block-end: 1px solid var(--hairline);
+}
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 1.35rem + 1.6vw, 2.375rem);
+  line-height: 1.25;
+  font-weight: 600;
+  text-wrap: balance;
+}
+.updated {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.toc {
+  margin-block-end: 2.25rem;
+  padding-block-end: 1.75rem;
+  border-block-end: 1px solid var(--hairline);
+}
+.toc h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.toc a {
+  display: block;
+  padding-block: 0.375rem;
+  color: var(--warm-ink);
+  text-decoration: none;
+}
+.toc a:hover { color: var(--lapis); text-decoration: underline; }
+
+.body { max-inline-size: 40rem; }
+:lang(ar) .body { max-inline-size: 42rem; }
+
+section + section { margin-block-start: 2.5rem; }
+section { scroll-margin-block-start: 1.5rem; }
+
+h2 {
+  margin: 0 0 0.625rem;
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ink);
+  text-wrap: balance;
+}
+:lang(ar) .body h2 { font-size: 1.3125rem; }
+
+p, ul { margin: 0 0 1em; color: var(--warm-ink); }
+p:last-child, ul:last-child { margin-block-end: 0; }
+p { text-wrap: pretty; }
+ul { padding-inline-start: 1.4em; }
+.body li + li { margin-block-start: 0.4em; }
+li::marker { color: var(--muted); }
+
+.site-foot {
+  font-size: 0.9375rem;
+  color: var(--warm-ink);
+  padding-block: 1.75rem 3rem;
+}
+.site-foot ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: inherit;
+}
+.site-foot a { color: var(--lapis); }
+.site-foot [aria-current] { color: var(--warm-ink); text-decoration: none; }
+
+/* ---------- wider screens ---------- */
+
+@media (min-width: 40rem) {
+  .wrap { padding-inline: 1.5rem; }
+  .site-head, .site-foot { padding-inline: 0; }
+  .doc {
+    border: 1px solid var(--hairline);
+    border-radius: 18px;
+    padding: 3rem 3.5rem 3.5rem;
+  }
+}
+
+@media (min-width: 60rem) {
+  .doc {
+    display: grid;
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+    grid-template-areas: "head head" "toc body";
+    column-gap: 3.5rem;
+    padding: 3.5rem 4rem 4rem;
+  }
+  .doc-head { grid-area: head; }
+  .toc {
+    grid-area: toc;
+    align-self: start;
+    position: sticky;
+    inset-block-start: 1.5rem;
+    max-block-size: calc(100vh - 3rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 0 0 0;
+    border: 0;
+  }
+  .body { grid-area: body; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* ---------- print ---------- */
+
+@media print {
+  @page { margin: 18mm 16mm; }
+  body { background: #fff; color: #000; font-size: 10.5pt; }
+  .skip, .lang, .toc, .site-foot .docs { display: none; }
+  .wrap { max-inline-size: none; padding: 0; }
+  .site-head { padding: 0 0 6mm; }
+  .doc { display: block; background: none; border: 0; padding: 0; }
+  .body { max-inline-size: none; }
+  p, ul, li, .updated { color: #000; }
+  h2 { break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  a { color: #000; text-decoration: none; }
+  .site-foot { padding: 6mm 0 0; color: #000; }
+}
