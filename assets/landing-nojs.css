@@ -1,0 +1,2 @@
+/* Loaded only inside <noscript>: with no script the 3D Kio cannot run, so the 2D Kio posters show instead. */
+.station .poster { opacity: 1 !important; }

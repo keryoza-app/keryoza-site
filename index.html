@@ -2,23 +2,34 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' blob:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<title>كِريوزا · Keryoza — قريباً</title>
-<meta name="description" content="كِريوزا: مغامرة في كل مكان. Different Screen · NOT Less Screen. قريباً.">
+<title>كِريوزا · Keryoza</title>
+<meta name="description" content="كِريوزا: قصص تفاعلية بتقنية الواقع المعزّز (AR). شاشة مختلفة، مش شاشة أقل. قريبًا.">
 <meta name="theme-color" content="#FFF3E2">
 <link rel="canonical" href="https://keryoza.com/">
 <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://keryoza.com/">
 <meta property="og:title" content="كِريوزا · Keryoza">
-<meta property="og:description" content="مغامرة في كل مكان — Different Screen · NOT Less Screen">
+<meta property="og:description" content="شاشة مختلفة، مش شاشة أقل — Different Screen · NOT Less Screen">
 <meta property="og:image" content="https://keryoza.com/assets/keryoza-512.png">
 <link rel="preload" href="assets/baloo-display.woff" as="font" type="font/woff" crossorigin>
 <link rel="stylesheet" href="assets/landing.css">
+<noscript><link rel="stylesheet" href="assets/landing-nojs.css"></noscript>
+<script src="assets/landing.js" defer></script>
+<script type="module" src="assets/landing-kio.js"></script>
 </head>
 <body>
+<!--
+THESIS (v3, 2026-11-01): you scroll and walk INTO Keryoza: a moving slogan ribbon, the screen opens like a
+  window, you walk down a hall with Kio (worlds on one wall, what Kio does on the other, new stories at the
+  end), you try one tiny search with him, then the gains, balanced play, the promises, and join.
+OWN-WORLD: locked brand (docs/design/brand/HANDOFF.md): cream ground, ray meadow, Keryoza Red voice,
+  gold joy, ink words; Baloo Bhaijaan 2 display, Readex Pro body; one 3D Kio (founder's own rig, smooth).
+COPY: docs/design/landing_v2/ROUND3_COPY.md (Arabic + child-development specialists, round 3).
+-->
 <svg class="meadow" aria-hidden="true" focusable="false">
   <defs>
     <pattern id="rays" width="160" height="160" patternUnits="userSpaceOnUse">
@@ -29,35 +40,405 @@
   <rect width="100%" height="100%" fill="url(#rays)"/>
 </svg>
 
-<main class="stage">
-  <div class="sunrise">
-    <img class="logo" src="assets/logo.svg" width="184" height="184" alt="شعار كِريوزا: كيو يشرق مثل شمس الصباح">
-  </div>
+<a class="skip" href="#why"><span class="ar">تخطَّ إلى المحتوى</span><span class="en" lang="en">Skip to content</span></a>
 
-  <p class="wordmark" lang="en" dir="ltr" aria-label="Keryoza"><span>K</span><span>e</span><span>r</span><span>y</span><span>o</span><span>z</span><span>a</span></p>
+<!-- The entrance: two dark doors with the Keryoza seal; a line of light, then they swing open into the page (CSS only, once per load). -->
+<div class="gate" aria-hidden="true"><i class="leaf l"><b><img src="assets/logo.svg" alt=""></b></i><i class="leaf r"><b><img src="assets/logo.svg" alt=""></b></i></div>
 
-  <p class="soon"><span>قريباً</span><span class="dot" aria-hidden="true"></span><span lang="en">Coming soon</span></p>
+<header class="bar">
+  <a class="brand" href="#top" aria-label="كِريوزا">
+    <img src="assets/logo.svg" width="48" height="48" alt="">
+    <span class="brand-word" lang="en" dir="ltr">Keryoza</span>
+  </a>
+  <nav class="nav" aria-label="أقسام الصفحة">
+    <a href="#window"><span class="ar">طريقة اللعب</span><span class="en" lang="en">How it plays</span></a>
+    <a href="#kio"><span class="ar">تعرّفوا على كيو</span><span class="en" lang="en">Meet Kio</span></a>
+    <a href="#gains"><span class="ar">ماذا يكتسب طفلكم</span><span class="en" lang="en">What they gain</span></a>
+    <a href="#features"><span class="ar">الأمان</span><span class="en" lang="en">Safety</span></a>
+  </nav>
+  <a class="bar-join" href="#join"><span class="ar">انضموا إلى أوائل العائلات</span><span class="en" lang="en">Join the first families</span></a>
+  <button class="lang" type="button" data-lang-toggle><span class="ar" lang="en">English</span><span class="en">عربي</span></button>
+</header>
 
-  <h1 class="chant">مغامرة <em>في كل مكان</em></h1>
+<!-- The one 3D Kio lives on this canvas and walks between the stations below. -->
+<canvas class="kio-canvas" aria-hidden="true" data-kio-canvas></canvas>
+<p class="kio-say" data-kio-say aria-live="polite"></p>
+<!-- What Kio does when someone taps him: one reaction per tap, in turn (child-development + Arabic checked). -->
+<template data-kio-lines>
+  <i data-greet><span class="ar">أهلًا! أنا كيو. يلّا نلعب؟</span><span class="en" lang="en">Hi! I'm Kio. Shall we play?</span></i>
+  <b data-move="jump"><span class="ar">هوب! قفزة عالية!</span><span class="en" lang="en">Hop! A big jump!</span></b>
+  <b data-move="wave"><span class="ar">أتعرفون لماذا لا يلعب السمك كرة القدم؟ لأنه يخاف من الشبكة!</span><span class="en" lang="en">Why don't fish play football? They're scared of the net!</span></b>
+  <b data-move="giggle"><span class="ar">هههه… دغدغتني!</span><span class="en" lang="en">Hee hee, that tickles!</span></b>
+  <b data-move="peek"><span class="ar">بَخ! وجدتُكم!</span><span class="en" lang="en">Peekaboo! I found you!</span></b>
+  <b data-move="look"><span class="ar">ما الشيء الذي له أسنان ولا يعضّ؟ المِشط!</span><span class="en" lang="en">What has teeth but never bites? A comb!</span></b>
+  <b data-move="dance"><span class="ar">أنا أرقص… مَن يرقص معي؟</span><span class="en" lang="en">I'm dancing… who's dancing with me?</span></b>
+  <b data-move="jump"><span class="ar">أنا كيو، وأحبّ الاكتشاف!</span><span class="en" lang="en">I'm Kio, and I love discovering!</span></b>
+</template>
+<div class="station station-dock" data-station="dock" aria-hidden="true"><img class="poster" src="assets/kio-greet.webp" width="400" height="400" alt=""></div>
 
-  <svg class="fan" viewBox="0 0 120 28" aria-hidden="true" focusable="false">
-    <rect x="57" y="2" width="6" height="16" rx="3"/>
-    <rect x="38" y="6" width="6" height="14" rx="3" transform="rotate(-28 41 13)"/>
-    <rect x="76" y="6" width="6" height="14" rx="3" transform="rotate(28 79 13)"/>
-    <rect x="22" y="14" width="6" height="11" rx="3" transform="rotate(-56 25 19)"/>
-    <rect x="92" y="14" width="6" height="11" rx="3" transform="rotate(56 95 19)"/>
-  </svg>
+<main id="top">
 
-  <p class="slogan" lang="en" dir="ltr">Different Screen <span aria-hidden="true">·</span> <strong>NOT</strong> Less Screen</p>
+  <!-- ===== 1. HERO ===== -->
+  <section class="hero" data-at="hero" aria-labelledby="hero-title">
+    <div class="props" aria-hidden="true">
+      <img class="prop p1" data-depth="18" src="assets/prop-shell.webp" alt="">
+      <img class="prop p2" data-depth="10" src="assets/friend-clownfish.webp" alt="">
+      <img class="prop p3" data-depth="26" src="assets/prop-star.webp" alt="">
+      <img class="prop p4" data-depth="8" src="assets/prop-coral.webp" alt="">
+      <img class="prop p5" data-depth="14" src="assets/friend-seahorse.webp" alt="">
+    </div>
+    <div class="hero-text">
+      <p class="chip"><span class="dot" aria-hidden="true"></span><span class="ar">قريبًا</span><span class="en" lang="en">Coming soon</span></p>
+      <h1 id="hero-title">
+        <span class="ar"><span class="hl">شَاشَةٌ تَفْتَحُ</span> <em class="hl">بَابَ الْفُضُول</em></span>
+        <span class="en" lang="en"><span class="hl">A screen that opens</span> <em class="hl">the door to curiosity</em></span>
+      </h1>
+      <p class="hero-sub">
+        <span class="ar">قصص تفاعلية بتقنية الواقع المعزّز (AR). <b>قوموا، امشوا، واكتشفوا كل عالم.</b></span>
+        <span class="en" lang="en">Interactive AR stories. <b>Get up, walk, and explore every world.</b></span>
+      </p>
+      <div class="cta-row">
+        <a class="btn-join" href="#join"><span class="ar">انضموا إلى أوائل العائلات</span><span class="en" lang="en">Join the first families</span></a>
+        <div class="stores">
+          <span class="store"><img src="assets/store-google-play.png" width="28" height="32" alt=""><span><b lang="en" dir="ltr">Google Play</b><small class="ar">قريبًا</small><small class="en" lang="en">Coming soon</small></span></span>
+          <span class="store"><img src="assets/store-app-store.png" width="32" height="32" alt=""><span><b lang="en" dir="ltr">App Store</b><small class="ar">قريبًا</small><small class="en" lang="en">Coming soon</small></span></span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-kio">
+      <span class="sun" aria-hidden="true"></span>
+      <button type="button" class="station station-hero" data-station="hero" data-kio-tap aria-label="كيو">
+        <img class="poster" src="assets/kio-wave.webp" width="400" height="400" alt="">
+      </button>
+    </div>
+    <!-- The slogan as one calm ribbon: Arabic and English in turn, drifting slowly with the scroll. -->
+    <div class="band" role="img" aria-label="شاشة مختلفة، مش شاشة أقل — Different screen, NOT less screen" data-band>
+      <div class="band-row" dir="rtl" aria-hidden="true"><div class="band-track" data-band-track="1">
+        <span class="ar-i">شاشة مختلفة… <em>مش</em> شاشة أقل</span><i></i><span class="en-i" lang="en" dir="ltr">Different screen, <em>not</em> less screen</span><i></i><span class="ar-i">شاشة مختلفة… <em>مش</em> شاشة أقل</span><i></i><span class="en-i" lang="en" dir="ltr">Different screen, <em>not</em> less screen</span><i></i><span class="ar-i">شاشة مختلفة… <em>مش</em> شاشة أقل</span><i></i><span class="en-i" lang="en" dir="ltr">Different screen, <em>not</em> less screen</span><i></i><span class="ar-i">شاشة مختلفة… <em>مش</em> شاشة أقل</span><i></i><span class="en-i" lang="en" dir="ltr">Different screen, <em>not</em> less screen</span><i></i>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ===== 2. WHY ===== -->
+  <section class="why" id="why" data-at="dock" aria-labelledby="why-title">
+    <p class="eyebrow"><span class="ar">لماذا كِريوزا؟</span><span class="en" lang="en">Why Keryoza?</span></p>
+    <h2 id="why-title" class="reveal"><span class="ar">شاشة <em>بشكل مختلف</em></span><span class="en" lang="en">A screen, <em>done differently</em></span></h2>
+    <p class="why-p ar">تُظهر الدراسات أن كثرة الجلوس أمام الشاشات عند الأطفال الصغار ترتبط بضعف التركيز واللغة وقلّة النوم، وأن الشاشة التفاعلية أمرٌ مختلف. <b>لذلك صنعنا كِريوزا.</b></p>
+    <p class="why-p en" lang="en">Studies show that a lot of sitting in front of screens in young children is linked with weaker focus and language and less sleep, and that an interactive screen is a different thing. <b>That is why we made Keryoza.</b></p>
+  </section>
+
+  <!-- ===== 3. THE SCREEN BECOMES A NEW WINDOW =====
+       A phone is a window cut into the page: the sea is really all around, behind the cream. As you scroll,
+       three creatures swim OUT of the phone into the page (far, mid, near: the AR moment), Kio reacts beside
+       it, then the window opens wide and the sea surrounds you. Art director round 4. -->
+  <section class="portal" id="window" data-at="portal" aria-labelledby="window-title">
+    <div class="sticky">
+      <video class="portal-video" muted playsinline loop preload="metadata" poster="assets/window-poster.jpg" aria-hidden="true" data-tall="assets/window-tall" data-tall-poster="assets/window-poster-tall.jpg">
+        <source src="assets/window-wide.webm" type="video/webm">
+        <source src="assets/window-wide.mp4" type="video/mp4">
+      </video>
+      <span class="portal-glow" aria-hidden="true"></span>
+      <span class="portal-bezel" aria-hidden="true"><i></i></span>
+      <h2 class="portal-title" id="window-title"><span class="ar">الشاشة تصبح <em>نافذة جديدة</em></span><span class="en" lang="en">The screen becomes <em>a new window</em></span></h2>
+      <span class="swim-clip"><img class="swim far" data-swim="0" src="assets/sea-jellyfish.webp" width="583" height="728" alt=""></span>
+      <span class="swim-clip"><img class="swim mid" data-swim="1" src="assets/sea-octopus.webp" width="720" height="549" alt=""></span>
+      <span class="swim-clip"><img class="swim near" data-swim="2" src="assets/sea-turtle.webp" width="622" height="322" alt=""></span>
+      <button type="button" class="station station-portal" data-station="portal" data-kio-tap aria-label="كيو"><img class="poster" src="assets/kio-surprised.webp" width="400" height="400" alt=""></button>
+      <p class="portal-line"><span class="ar">تخرج القصة من الشاشة… <b>فيمشي طفلكم ليكتشفها</b></span><span class="en" lang="en">The story steps out of the screen… <b>so your child walks to find it</b></span><small><span class="ar">بتقنية الواقع المعزّز (AR)</span><span class="en" lang="en">With AR</span></small></p>
+    </div>
+  </section>
+
+  <!-- ===== 4. THE HALL: walk with Kio past the worlds (one wall) and what Kio does (the other wall) =====
+       Shutabug-style: the page scroll moves you down a 3D corridor. Each exhibit opens toward you as you
+       near it, and its museum placard (the readable text + Kio's real voice) shows in the HUD. -->
+  <section class="hall" id="kio" data-at="hall" aria-labelledby="hall-title">
+    <span id="worlds" class="anchor" aria-hidden="true"></span>
+    <div class="sticky">
+      <div class="hall-view" data-hall-view aria-hidden="true">
+        <div class="hall-world" data-hall-world></div>
+      </div>
+      <header class="hall-sign" data-hall-sign>
+        <p class="eyebrow"><span class="ar">تعرّفوا على كيو</span><span class="en" lang="en">Meet Kio</span></p>
+        <h2 id="hall-title"><span class="ar">كيو يلعب <em>مع طفلكم</em></span><span class="en" lang="en">Kio plays <em>with your child</em></span></h2>
+        <p><span class="ar">امشوا معه في عوالم كِريوزا: جدار يُريكم ما يفعله كيو، وجدار آخر للعوالم التي يدخلها طفلكم.</span><span class="en" lang="en">Walk with him through Keryoza's worlds: one wall shows what Kio does, the other the worlds your child walks into.</span></p>
+        <p class="walk-hint"><span class="ar">مرّروا لتمشوا</span><span class="en" lang="en">Scroll to walk</span><i aria-hidden="true"></i></p>
+      </header>
+
+      <!-- The exhibits. With JS + motion they hang on the hall walls and their text moves to the placard;
+           without (or with reduced motion) they read as a plain list. data-side: a = worlds wall, b = Kio wall. -->
+      <ol class="exhibits" data-exhibits>
+        <li class="exhibit world" data-side="a" data-act="look">
+          <figure class="frame z"><img src="assets/scene-zoo.webp" width="720" height="876" alt="أصدقاء من حديقة الحيوان في كِريوزا: فيل وزرافة وأسد" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">عالم</span><span class="en" lang="en">A world</span></p><h3><span class="ar">حديقة الحيوان</span><span class="en" lang="en">The zoo</span></h3><p><span class="ar">أصدقاء من الحيوانات يختبئون… وطفلكم يبحث عنهم ويتعرّف عليهم.</span><span class="en" lang="en">Animal friends are hiding… and your child searches for them and gets to know them.</span></p></div>
+        </li>
+        <li class="exhibit kio" data-side="b" data-act="wave">
+          <figure class="frame"><img src="assets/screen-thresholdscreen.webp" width="480" height="584" alt="" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">كيو</span><span class="en" lang="en">Kio</span></p><h3><span class="ar">صديق اللعب</span><span class="en" lang="en">A play friend</span></h3><p><span class="ar">يستقبل طفلكم عند بداية اللعب، ويلعب معه من أول لحظة.</span><span class="en" lang="en">He greets your child when play starts and plays alongside them from the first moment.</span></p><blockquote><span class="ar">«أهلًا! أنا كيو، هيّا نلعب»</span><span class="en" lang="en">"Hi! I'm Kio, let's play"</span></blockquote><button type="button" class="speak" data-audio="kio_s9_hello"><span class="ar">اسمعوا صوت كيو</span><span class="en" lang="en">Hear Kio</span></button></div>
+        </li>
+        <li class="exhibit world" data-side="a" data-act="look">
+          <figure class="frame"><img src="assets/screen-s21_habitat.webp" width="480" height="584" alt="من لعبة كِريوزا: صديق في حديقة الحيوان" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">حديقة الحيوان</span><span class="en" lang="en">The zoo</span></p><h3><span class="ar">حديقة تكبر معه</span><span class="en" lang="en">A zoo that grows with them</span></h3><p><span class="ar">كل صديق يجده طفلكم ينضمّ إلى حديقته.</span><span class="en" lang="en">Every friend your child finds joins their own zoo.</span></p></div>
+        </li>
+        <li class="exhibit kio" data-side="b" data-act="look">
+          <figure class="frame"><img src="assets/screen-s22_seamap.webp" width="480" height="584" alt="" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">كيو</span><span class="en" lang="en">Kio</span></p><h3><span class="ar">يبحث معه</span><span class="en" lang="en">Searches together</span></h3><p><span class="ar">يقول دائمًا «نحن»: نبحث معًا، ونجد معًا.</span><span class="en" lang="en">He always says "we": we search together, we find together.</span></p><blockquote><span class="ar">«ربّما هو خلفنا! هيّا ننظر خلفنا.»</span><span class="en" lang="en">"Maybe it's behind us! Let's look behind us."</span></blockquote><button type="button" class="speak" data-audio="kio_hint_45s_behind"><span class="ar">اسمعوا صوت كيو</span><span class="en" lang="en">Hear Kio</span></button></div>
+        </li>
+        <li class="exhibit world" data-side="a" data-act="look">
+          <figure class="frame s"><img src="assets/scene-sea.webp" width="720" height="876" alt="كائنات البحر في كِريوزا: سلحفاة وأخطبوط وسمكة مهرّج" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">عالم</span><span class="en" lang="en">A world</span></p><h3><span class="ar">قاع البحر</span><span class="en" lang="en">The sea bed</span></h3><p><span class="ar">كائنات البحر وكنزٌ مخفي… ومع كل اكتشاف معلومة حقيقية.</span><span class="en" lang="en">Sea creatures and a hidden treasure… with a real fact at every find.</span></p></div>
+        </li>
+        <li class="exhibit kio" data-side="b" data-act="look">
+          <figure class="frame k"><img src="assets/kio-idea.webp" width="400" height="400" alt="" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">كيو</span><span class="en" lang="en">Kio</span></p><h3><span class="ar">يرشده بلطف</span><span class="en" lang="en">Guides gently</span></h3><p><span class="ar">إذا تأخّر الاكتشاف، يعطيه تلميحًا صغيرًا. لا يوجد «خطأ» في كِريوزا.</span><span class="en" lang="en">If a find takes a while, he gives a small hint. There is no "wrong" in Keryoza.</span></p><blockquote><span class="ar">«لم نجده بعد؟ لا بأس! هيّا نسمع التلميح مرّة أخرى.»</span><span class="en" lang="en">"Not found yet? That's okay! Let's hear the hint again."</span></blockquote><button type="button" class="speak" data-audio="kio_hint_20s_prefix"><span class="ar">اسمعوا صوت كيو</span><span class="en" lang="en">Hear Kio</span></button></div>
+        </li>
+        <li class="exhibit world" data-side="a" data-act="look">
+          <figure class="frame"><img src="assets/screen-s23_submarine.webp" width="480" height="584" alt="من لعبة كِريوزا: الغوّاصة" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">قاع البحر</span><span class="en" lang="en">The sea bed</span></p><h3><span class="ar">غوّاصة وخريطة</span><span class="en" lang="en">A submarine and a map</span></h3><p><span class="ar">رحلة تحت الماء، وكنز ينتظر من يجده.</span><span class="en" lang="en">A trip under the water, and a treasure waiting to be found.</span></p></div>
+        </li>
+        <li class="exhibit kio" data-side="b" data-act="dance">
+          <figure class="frame"><img src="assets/screen-s19_sleeping.webp" width="480" height="584" alt="" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">كيو</span><span class="en" lang="en">Kio</span></p><h3><span class="ar">يفرح… ثم يرتاح</span><span class="en" lang="en">Celebrates, then rests</span></h3><p><span class="ar">يحتفل بكل اكتشاف، وفي نهاية اللعبة يتعب فينام. وتبدأ اللعبة التالية عندما تقرّرون أنتم.</span><span class="en" lang="en">He celebrates every find. At the end of a game he gets tired and sleeps. The next game starts when you decide.</span></p><blockquote><span class="ar">«تعبتُ قليلًا. سأنامُ قليلًا، ونلعبُ بعدَ قليل.»</span><span class="en" lang="en">"I'm a little tired. I'll sleep a bit, and we'll play later."</span></blockquote><button type="button" class="speak" data-audio="kio_rest_gap"><span class="ar">اسمعوا صوت كيو</span><span class="en" lang="en">Hear Kio</span></button></div>
+        </li>
+        <li class="exhibit world" data-side="a" data-act="look">
+          <figure class="frame"><img src="assets/screen-s24_logbook.webp" width="480" height="584" alt="من لعبة كِريوزا: دفتر الاكتشافات" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">قاع البحر</span><span class="en" lang="en">The sea bed</span></p><h3><span class="ar">دفتر الاكتشافات</span><span class="en" lang="en">The finds logbook</span></h3><p><span class="ar">يحفظ طفلكم في دفتره كل كائن وجده.</span><span class="en" lang="en">Your child keeps every creature they found in their own logbook.</span></p></div>
+        </li>
+        <li class="exhibit kio" data-side="b" data-act="wave">
+          <figure class="frame"><img src="assets/screen-s20_activitychoice.webp" width="480" height="584" alt="" loading="lazy"></figure>
+          <div class="placard"><p class="pk"><span class="ar">كيو</span><span class="en" lang="en">Kio</span></p><h3><span class="ar">يقرّبه منكم</span><span class="en" lang="en">Brings them closer to you</span></h3><p><span class="ar">قبل أن ينام، يخبره بنشاطٍ حقيقي تختارونه أنتم، ويدعوه ليحكي لكم ما وجده.</span><span class="en" lang="en">Before he sleeps, he tells your child about a real-world activity that you chose, and invites them to tell you what they found.</span></p></div>
+        </li>
+      </ol>
+
+      <!-- The end wall: what comes next. Topics the founder picked (2026-11-02); each picture is a clay scene rendered for the page. -->
+      <div class="hall-end" data-hall-end>
+        <h3><span class="ar">قصص جديدة <em>في الطريق</em></span><span class="en" lang="en">New stories <em>on the way</em></span></h3>
+        <ul class="doors">
+          <li class="door d-space"><img src="assets/scene-space.webp" width="720" height="876" alt="" loading="lazy"><span class="soon-pill"><span class="ar">الفضاء</span><span class="en" lang="en">Space</span></span></li>
+          <li class="door d-pyr"><img src="assets/soon-pyramids.webp" width="600" height="498" alt="" loading="lazy"><span class="soon-pill"><span class="ar">الأهرامات</span><span class="en" lang="en">The pyramids</span></span></li>
+          <li class="door d-let"><img src="assets/soon-letters.webp" width="600" height="615" alt="" loading="lazy"><span class="soon-pill"><span class="ar">الحروف العربية</span><span class="en" lang="en">Arabic letters</span></span></li>
+          <li class="door d-puz"><img src="assets/soon-puzzle.webp" width="600" height="702" alt="" loading="lazy"><span class="soon-pill"><span class="ar">ألغاز</span><span class="en" lang="en">Puzzles</span></span></li>
+          <li class="door d-cnt"><img src="assets/soon-counting.webp" width="600" height="322" alt="" loading="lazy"><span class="soon-pill"><span class="ar">العدّ</span><span class="en" lang="en">Counting</span></span></li>
+          <li class="door d-his"><img src="assets/soon-history.webp" width="600" height="428" alt="" loading="lazy"><span class="soon-pill"><span class="ar">رحلة عبر التاريخ</span><span class="en" lang="en">A journey through history</span></span></li>
+        </ul>
+      </div>
+
+      <div class="hud" data-hud aria-live="polite"><div class="hud-in" data-hud-in></div><p class="hud-count" data-hud-count></p></div>
+      <button type="button" class="station station-hall" data-station="hall" data-kio-tap aria-label="كيو"><img class="poster" src="assets/kio-point.webp" width="400" height="400" alt=""></button>
+    </div>
+  </section>
+
+  <!-- ===== 6. TRY IT WITH KIO ===== -->
+  <section class="try" id="try" data-at="try" aria-labelledby="try-title">
+    <div class="sticky">
+    <div class="try-head">
+      <h2 id="try-title"><span class="ar">جرّبوا البحث مع كيو</span><span class="en" lang="en">Try searching with Kio</span></h2>
+      <p><span class="ar">مرّروا لتنظروا حولكم، ثم اضغطوا حيث تظنّون أنّ صديقنا مختبئ.</span><span class="en" lang="en">Scroll to look around, then tap where you think our friend is hiding.</span></p>
+      <div class="worlds" role="group" aria-label="العالم · World">
+        <button type="button" data-go="sea" aria-pressed="true"><img src="assets/friend-clownfish.webp" alt=""><span class="ar">البحر</span><span class="en" lang="en">The sea</span></button>
+        <button type="button" data-go="zoo" aria-pressed="false"><img src="assets/friend-lion.webp" alt=""><span class="ar">حديقة الحيوانات</span><span class="en" lang="en">The zoo</span></button>
+      </div>
+    </div>
+    <div class="stage" data-stage data-on="sea">
+      <div class="pano" data-pano>
+        <div class="world" data-world="sea">
+          <div class="layer back" data-layer="0.35" aria-hidden="true">
+            <i class="ray r1"></i><i class="ray r2"></i><i class="ray r3"></i>
+            <i class="far f1"></i><i class="far f2"></i><i class="far f3"></i>
+            <img class="ship" src="assets/try-ship.webp" width="760" height="536" alt="">
+          </div>
+          <div class="layer mid" data-layer="1">
+            <img class="deco d-mound" src="assets/try-mound.webp" width="520" height="306" alt="" aria-hidden="true">
+            <img class="deco d-anchor" src="assets/try-anchor.webp" width="400" height="392" alt="" aria-hidden="true">
+            <img class="deco d-shell" src="assets/prop-shell.webp" width="200" height="200" alt="" aria-hidden="true">
+            <img class="deco d-star" src="assets/prop-star.webp" width="200" height="200" alt="" aria-hidden="true">
+            <button type="button" class="spot spot-coral" data-spot="0"><span class="vh"><span class="ar">مرجانة</span><span class="en" lang="en">Coral</span></span><img src="assets/try-coral.webp" width="460" height="498" alt=""></button>
+            <button type="button" class="spot spot-clam" data-spot="1"><span class="vh"><span class="ar">صدفة عملاقة</span><span class="en" lang="en">A giant clam</span></span><img src="assets/try-clam.webp" width="520" height="451" alt=""></button>
+            <button type="button" class="spot spot-chest" data-spot="2"><span class="vh"><span class="ar">صندوق</span><span class="en" lang="en">A chest</span></span><img class="shut" src="assets/try-chest.webp" width="520" height="380" alt=""><img class="opened" src="assets/try-chest-open.webp" width="520" height="515" alt=""></button>
+            <img class="friend" data-friend src="assets/friend-clownfish.webp" width="200" height="200" alt="">
+          </div>
+          <div class="layer front" data-layer="1.6" aria-hidden="true"><img class="kelp k1" src="assets/try-kelp.webp" alt=""><img class="kelp k2" src="assets/try-kelp.webp" alt=""><img class="kelp k3" src="assets/try-kelp.webp" alt=""><img class="kelp k4" src="assets/try-kelp.webp" alt=""></div>
+        </div>
+        <div class="world" data-world="zoo" hidden>
+          <div class="layer back" data-layer="0.35" aria-hidden="true">
+            <i class="cloud c1"></i><i class="cloud c2"></i><i class="cloud c3"></i>
+            <i class="hill h1"></i><i class="hill h2"></i><i class="hill h3"></i>
+            <img class="far-tree t1" src="assets/zoo-treetall.webp" alt=""><img class="far-tree t2" src="assets/zoo-treetall.webp" alt=""><img class="far-tree t3" src="assets/zoo-treetall.webp" alt=""><img class="far-tree t4" src="assets/zoo-treetall.webp" alt="">
+          </div>
+          <div class="layer mid" data-layer="1">
+            <img class="deco d-fence f-a" src="assets/zoo-fence.webp" width="520" height="422" alt="" aria-hidden="true">
+            <img class="deco d-fence f-b" src="assets/zoo-fence.webp" width="520" height="422" alt="" aria-hidden="true">
+            <img class="deco d-sign" src="assets/zoo-sign.webp" width="300" height="472" alt="" aria-hidden="true">
+            <img class="deco d-flowers" src="assets/zoo-flowers.webp" width="460" height="215" alt="" aria-hidden="true">
+            <button type="button" class="spot spot-bush" data-spot="0"><span class="vh"><span class="ar">شجيرة</span><span class="en" lang="en">A bush</span></span><img src="assets/zoo-bush.webp" width="520" height="358" alt=""></button>
+            <button type="button" class="spot spot-rock" data-spot="1"><span class="vh"><span class="ar">صخرة</span><span class="en" lang="en">A rock</span></span><img src="assets/zoo-rock.webp" width="520" height="358" alt=""></button>
+            <button type="button" class="spot spot-tree" data-spot="2"><span class="vh"><span class="ar">شجرة</span><span class="en" lang="en">A tree</span></span><img src="assets/zoo-tree.webp" width="440" height="686" alt=""></button>
+            <img class="friend" data-friend src="assets/friend-lion.webp" width="380" height="445" alt="">
+          </div>
+          <div class="layer front" data-layer="1.6" aria-hidden="true"><img class="blur-front g1" src="assets/zoo-bush.webp" alt=""><img class="blur-front g2" src="assets/zoo-flowers.webp" alt=""><img class="blur-front g3" src="assets/zoo-bush.webp" alt=""></div>
+        </div>
+      </div>
+      <div class="sand" aria-hidden="true"></div>
+      <div class="bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="finder" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p class="mission" data-mission aria-live="polite"><img data-mission-pic src="assets/friend-clownfish.webp" width="200" height="200" alt=""><span><small><span class="ar">ابحثوا عن</span><span class="en" lang="en">Find</span></small><b data-mission-name><span class="ar">سمكة المهرّج</span><span class="en" lang="en">the clownfish</span></b></span><i class="tick"></i></p>
+      <div class="stage-kio">
+        <p class="bubble on" data-try-bubble aria-live="polite"><span class="ar">هل نبدأ؟ هيّا نبحث!</span><span class="en" lang="en">Shall we start? Let's search!</span></p>
+        <button type="button" class="station station-try" data-station="try" data-kio-tap aria-label="كيو"><img class="poster" src="assets/kio-curious.webp" width="400" height="400" alt=""></button>
+      </div>
+      <span class="sparks" aria-hidden="true"><i></i><i></i><i></i></span>
+    </div>
+    <div class="try-foot">
+      <button type="button" class="btn-quiet" data-try-reset hidden><span class="ar">خبّئوه مرة أخرى</span><span class="en" lang="en">Hide it again</span></button>
+      <label class="sound-toggle"><input type="checkbox" role="switch" data-try-sound><i aria-hidden="true"></i><span class="ar">صوت كيو</span><span class="en" lang="en">Kio's voice</span></label>
+      <p class="try-caption"><span class="ar">لمحة صغيرة هنا على الموقع. في اللعبة الحقيقية يمشي طفلكم ويبحث بتقنية الواقع المعزّز.</span><span class="en" lang="en">A small taste on the web. In the real game, your child walks and searches with AR.</span></p>
+    </div>
+    </div>
+    <template data-try-lines>
+      <b data-k="start" data-audio="kio_intro_nudge"><span class="ar">هل نبدأ؟ هيّا نبحث!</span><span class="en" lang="en">Shall we start? Let's search!</span></b>
+      <b data-k="wrong" data-audio="kio_hunt_far_tap"><span class="ar">ليس هنا! هيّا ننظر في مكانٍ آخر.</span><span class="en" lang="en">Not here! Let's look somewhere else.</span></b>
+      <b data-k="hint" data-audio="kio_hint_45s_behind"><span class="ar">ربّما هو خلفنا! هيّا ننظر خلفنا.</span><span class="en" lang="en">Maybe it's behind us! Let's look behind us.</span></b>
+      <b data-k="seen" data-audio="kio_hunt_seen"><span class="ar">ها هو! هيّا نضغط عليه!</span><span class="en" lang="en">There it is! Let's tap it!</span></b>
+      <b data-k="friend-clownfish"><span class="ar">سمكة المهرّج</span><span class="en" lang="en">the clownfish</span></b>
+      <b data-k="friend-sea_turtle"><span class="ar">السلحفاة البحرية</span><span class="en" lang="en">the sea turtle</span></b>
+      <b data-k="friend-seahorse"><span class="ar">فرس البحر</span><span class="en" lang="en">the seahorse</span></b>
+      <b data-k="friend-lion"><span class="ar">الأسد</span><span class="en" lang="en">the lion</span></b>
+      <b data-k="friend-panda"><span class="ar">الباندا</span><span class="en" lang="en">the panda</span></b>
+      <b data-k="friend-penguin"><span class="ar">البطريق</span><span class="en" lang="en">the penguin</span></b>
+      <b data-k="found" data-audio="kio_found_cheer_1"><span class="ar">رائع! وجدناه!</span><span class="en" lang="en">Great! We found it!</span></b>
+    </template>
+  </section>
+
+  <!-- ===== 7. WHAT YOUR CHILD GAINS (wheel) ===== -->
+  <section class="gains" id="gains" data-at="dock" data-scrub="gains" aria-labelledby="gains-title">
+    <div class="sticky">
+      <div class="gains-head">
+        <p class="eyebrow"><span class="ar">ماذا يكتسب طفلكم</span><span class="en" lang="en">What your child gains</span></p>
+        <h2 id="gains-title"><span class="ar">يلعب… <em>ويكبر</em></span><span class="en" lang="en">They play, <em>and they grow</em></span></h2>
+        <p><span class="ar">كل قصة في كِريوزا مبنية حول شيء واضح يتعلّمه الطفل.</span><span class="en" lang="en">Every Keryoza story is built around one clear thing your child learns.</span></p>
+      </div>
+      <div class="wheel" data-wheel>
+        <article class="skill"><figure><img src="assets/screen-thresholdscreen.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">الحركة</span><span class="en" lang="en">Moving</span></h3><p><span class="ar">ينهض ويمشي ويدور ليكتشف، بدلًا من الجلوس الطويل.</span><span class="en" lang="en">They get up, walk and turn to discover, instead of sitting still for long.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s22_seamap.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">الاستماع واتّباع الدليل</span><span class="en" lang="en">Listening &amp; following clues</span></h3><p><span class="ar">يسمع الدليل من كيو، ويتذكّره وهو يمشي ويبحث.</span><span class="en" lang="en">They hear Kio's clue and keep it in mind while they walk and search.</span></p></article>
+        <article class="skill know"><figure class="z"><img src="assets/scene-zoo.webp" width="720" height="876" alt="" loading="lazy"></figure><p class="tag"><span class="ar">معرفة</span><span class="en" lang="en">Knowledge</span></p><h3><span class="ar">الحيوانات</span><span class="en" lang="en">Animals</span></h3><p><span class="ar">يتعرّف على الحيوانات، ومع كل اكتشاف معلومة حقيقية عنها.</span><span class="en" lang="en">They get to know animals, with a real fact at every find.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s21_habitat.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">كلمات المكان</span><span class="en" lang="en">Place words</span></h3><p><span class="ar">فوق، تحت، بجانب، خلف: كلمات يتعلّمها وهو يتحرّك.</span><span class="en" lang="en">On, under, next to, behind: words they learn while moving.</span></p></article>
+        <article class="skill know"><figure class="s"><img src="assets/scene-sea.webp" width="720" height="876" alt="" loading="lazy"></figure><p class="tag"><span class="ar">معرفة</span><span class="en" lang="en">Knowledge</span></p><h3><span class="ar">كائنات البحر</span><span class="en" lang="en">Sea creatures</span></h3><p><span class="ar">يجد كائنات البحر، ويسمع معلومة حقيقية عن كلٍّ منها، ويحفظ اكتشافاته في دفتره.</span><span class="en" lang="en">They find sea creatures, hear a real fact about each one, and keep every find in their own logbook.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s24_logbook.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">التذكّر</span><span class="en" lang="en">Remembering</span></h3><p><span class="ar">مع كل اكتشاف معلومة حقيقية صغيرة، يسمعها ويتذكّرها.</span><span class="en" lang="en">Every find comes with a small real fact to hear and remember.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s14c_card_gift.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">المشاركة</span><span class="en" lang="en">Sharing</span></h3><p><span class="ar">يقدّم هدية لكيو، ويهتمّ بالأصدقاء الذين وجدهم.</span><span class="en" lang="en">They give Kio a gift and look after the friends they found.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s14c_card_pawcoin.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">لغته العربية</span><span class="en" lang="en">Their Arabic</span></h3><p><span class="ar">يسمع عربية واضحة في كل قصة، فتزيد كلماته.</span><span class="en" lang="en">They hear clear Arabic in every story, so they learn more words.</span></p></article>
+        <article class="skill"><figure><img src="assets/screen-s23_submarine.webp" width="480" height="584" alt="" loading="lazy"></figure><p class="tag"><span class="ar">مهارة</span><span class="en" lang="en">Skill</span></p><h3><span class="ar">الفضول والثقة</span><span class="en" lang="en">Curiosity &amp; confidence</span></h3><p><span class="ar">كل اكتشاف صغير يبني ثقته، ويجعله يسأل: وماذا بعد؟</span><span class="en" lang="en">Every small find builds confidence and makes them ask: what's next?</span></p></article>
+        <article class="skill know more"><figure class="sp"><img src="assets/scene-space.webp" width="720" height="876" alt="" loading="lazy"></figure><p class="tag"><span class="ar">ومعرفة جديدة</span><span class="en" lang="en">And new knowledge</span></p><h3><span class="ar">والمزيد مع كل قصة</span><span class="en" lang="en">And more with every story</span></h3><p><span class="ar">كل قصة جديدة عالمٌ جديد، وأشياء جديدة يكتشفها.</span><span class="en" lang="en">Each new story brings a new world and new things to discover.</span></p></article>
+      </div>
+      <div class="wheel-nav">
+        <button type="button" data-wheel-step="-1" aria-label="السابق"><i aria-hidden="true"></i></button>
+        <button type="button" data-wheel-step="1" aria-label="التالي"><i aria-hidden="true"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 8. PLAY, THEN REST (sticky steps) ===== -->
+  <section class="rest" id="rest" data-at="dock" aria-labelledby="rest-title">
+    <div class="rest-head">
+      <p class="eyebrow"><span class="ar">لعبٌ متوازن</span><span class="en" lang="en">Balanced play</span></p>
+      <h2 id="rest-title"><span class="ar">نلعب، <em>ثم نرتاح</em></span><span class="en" lang="en">We play, <em>then we rest</em></span></h2>
+    </div>
+    <div class="rest-grid">
+      <div class="phone-col">
+        <div class="phone" aria-hidden="true">
+          <img class="on" data-rest-img="0" src="assets/screen-thresholdscreen.webp" width="480" height="584" alt="">
+          <img data-rest-img="1" src="assets/screen-s20_activitychoice.webp" width="480" height="584" alt="" loading="lazy">
+          <img data-rest-img="2" src="assets/screen-s19_sleeping.webp" width="480" height="584" alt="" loading="lazy">
+          <img data-rest-img="3" src="assets/screen-playtimescreen.webp" width="480" height="584" alt="" loading="lazy">
+        </div>
+      </div>
+      <ol class="rest-steps">
+        <li class="on" data-rest-step="0"><b class="ar">وقت اللعب</b><b class="en" lang="en">Game time</b><p><span class="ar">لعبة قصيرة يمشي فيها طفلكم ويبحث ويكتشف، بالمدة التي تختارونها.</span><span class="en" lang="en">A short game where your child walks, searches and discovers, for the time you choose.</span></p><p class="note"><span class="ar">يُفضَّل اللعب في مساحة واسعة خالية، وأحد الكبار قريب.</span><span class="en" lang="en">Best played in a clear, open space with a grown-up nearby.</span></p></li>
+        <li data-rest-step="1"><b class="ar">وقت للحركة</b><b class="en" lang="en">Time to move</b><p><span class="ar">بعد كل لعبة، وقت للحركة بعيدًا عن الشاشة، ونشاط حقيقي يختاره أحد الوالدين.</span><span class="en" lang="en">After every game: time to move away from the screen, and a real-world activity a parent picks.</span></p></li>
+        <li data-rest-step="2"><b class="ar">كيو ينام</b><b class="en" lang="en">Kio sleeps</b><p><span class="ar">يحتفل كيو ثم ينام بهدوء. لا عدّاد، ولا ضغط، ولا رسائل تستدعي الطفل إلى اللعب.</span><span class="en" lang="en">Kio celebrates, then quietly falls asleep. No countdown, no pressure, no messages calling your child to play.</span></p></li>
+        <li data-rest-step="3"><b class="ar">الأهل يقرّرون</b><b class="en" lang="en">Parents decide</b><p><span class="ar">لا يفتح اللعبة التالية إلا أحد الوالدين. وحدّ اللعب اليومي واحد للجميع، باشتراك أو بدونه، ولا يُباع أبدًا.</span><span class="en" lang="en">Only a parent can open the next game. The daily play limit is the same for everyone, free or paid, and is never for sale.</span></p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== 9. FEATURES ===== -->
+  <section class="features" id="features" data-at="dock" aria-labelledby="feat-title">
+    <p class="eyebrow"><span class="ar">مميزات كِريوزا</span><span class="en" lang="en">Keryoza features</span></p>
+    <h2 id="feat-title"><span class="ar">لعبةٌ تعليمية آمنة <em>تُضيف الكثير لطفلكم</em></span><span class="en" lang="en">A safe learning game <em>that gives your child a lot</em></span></h2>
+    <ul class="tiles">
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11"/><path d="M8 24 24 8"/></svg><h3><span class="ar">بلا إعلانات أبدًا</span><span class="en" lang="en">No ads, ever</span></h3><p><span class="ar">لا إعلانات ولا نوافذ منبثقة داخل اللعبة.</span><span class="en" lang="en">No ads and no pop-ups inside the game.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 21v-6a6 6 0 0 1 12 0v6l2 3H8Z"/><path d="M6 6l20 20"/></svg><h3><span class="ar">لا إشعارات تستدعي الطفل</span><span class="en" lang="en">No alerts calling your child</span></h3><p><span class="ar">لا نرسل للطفل إشعارات، ولا شيء مصمّم ليشدّه إلى الشاشة.</span><span class="en" lang="en">We send your child no notifications, and nothing is designed to pull them to the screen.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="10" y="4" width="12" height="24" rx="3"/><path d="M14 23h4"/><path d="M16 10v6"/></svg><h3><span class="ar">الواقع المعزّز يبقى على الهاتف</span><span class="en" lang="en">AR stays on the phone</span></h3><p><span class="ar">يُعالَج مشهد الواقع المعزّز على الهاتف فقط، ولا يُسجَّل منه شيء ولا يُحفَظ ولا يُرسَل.</span><span class="en" lang="en">The AR view is processed on the phone only. Nothing of it is recorded, stored or sent.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M24 19A9 9 0 0 1 13 8a9 9 0 1 0 11 11Z"/></svg><h3><span class="ar">لعبٌ متوازن مع راحة</span><span class="en" lang="en">Balanced play with rest</span></h3><p><span class="ar">تختارون وقت اللعب، ثم يرتاح كيو. واللعبة التالية بإذنكم.</span><span class="en" lang="en">You choose the game time, then Kio rests. The next game waits for your OK.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="11" cy="11" rx="4" ry="6"/><ellipse cx="21" cy="21" rx="4" ry="6"/></svg><h3><span class="ar">حركة بعد كل لعبة</span><span class="en" lang="en">Movement after every game</span></h3><p><span class="ar">عندما تنتهي اللعبة، يحين وقت الحركة بعيدًا عن الشاشة.</span><span class="en" lang="en">When the game ends, it's time to move away from the screen.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4l3.5 7 7.5 1-5.5 5.2 1.3 7.6L16 21.3 9.2 24.8l1.3-7.6L5 12l7.5-1Z"/></svg><h3><span class="ar">مهارات حقيقية</span><span class="en" lang="en">Real skills</span></h3><p><span class="ar">الحركة، والاستماع، وكلمات المكان، والتذكّر، والمشاركة.</span><span class="en" lang="en">Moving, listening, place words, remembering and sharing.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 13v6h5l7 6V7l-7 6Z"/><path d="M22 11a7 7 0 0 1 0 10"/></svg><h3><span class="ar">بالعربية</span><span class="en" lang="en">In Arabic</span></h3><p><span class="ar">التطبيق باللغة العربية، إيمانًا منّا بأهمية اللغة العربية والحفاظ عليها.</span><span class="en" lang="en">The app is in Arabic, because we believe in the value of the Arabic language and in keeping it alive.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M11 18a6 6 0 0 0 10 0"/><path d="M12 12h.01M20 12h.01"/></svg><h3><span class="ar">ممتعة فعلاً</span><span class="en" lang="en">Truly fun</span></h3><p><span class="ar">مغامرات بحث واكتشاف، مع صديقٍ يفرح بكل اكتشاف.</span><span class="en" lang="en">Search-and-discover adventures with a friend who celebrates every find.</span></p></li>
+      <li><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="14" width="18" height="13" rx="3"/><path d="M11 14v-3a5 5 0 0 1 10 0v3"/></svg><h3><span class="ar">التحكّم بيد الأهل</span><span class="en" lang="en">Parents in control</span></h3><p><span class="ar">الإعدادات ووقت اللعب خلف بوابة لا يفتحها إلا الأهل. طفلكم يلعب، وأنتم تقرّرون.</span><span class="en" lang="en">Settings and play time sit behind a gate only parents can open. Your child plays; you decide.</span></p></li>
+    </ul>
+  </section>
+
+  <!-- ===== 10. JOIN: the golden ticket =====
+       A ticket to the first families. One button opens the parent's own email app with a ready message to
+       support@keryoza.com (founder 2026-11-02: no form, no server). Sending it is the parent's own opt-in;
+       nothing about a child, ever (MVP_Scope §9). -->
+  <section class="join" id="join" data-at="join" aria-labelledby="join-title">
+    <div class="join-stage">
+      <div class="join-kio">
+        <span class="sun" aria-hidden="true"></span>
+        <button type="button" class="station station-join" data-station="join" data-kio-tap aria-label="كيو"><img class="poster" src="assets/kio-wave.webp" width="400" height="400" alt=""></button>
+      </div>
+
+      <div class="ticket" data-ticket>
+        <div class="ticket-main">
+          <p class="ticket-kicker"><span class="ar">تذكرة أوائل العائلات</span><span class="en" lang="en">First families pass</span></p>
+          <h2 id="join-title"><span class="ar">أهلًا بكم في <em>عائلة كِريوزا</em></span><span class="en" lang="en">Welcome to <em>the Keryoza family</em></span></h2>
+          <p class="ticket-sub"><span class="ar">ننطلق قريبًا. اضغطوا الزر وأرسلوا الرسالة الجاهزة، وسنخبركم أوّل ما نطلق.</span><span class="en" lang="en">We launch soon. Press the button, send the ready email, and we'll tell you the moment we launch.</span></p>
+          <!-- No form and no server: the button opens the parent's own email app with a ready message to us. -->
+          <div class="join-form">
+            <!-- The parent ticks first; the button wakes up only then (CSS :has, JS guards the keyboard). -->
+            <label class="agree"><input type="checkbox" data-join-ok> <span class="ar">أوافق على أن تراسلني كِريوزا عند الإطلاق وعند صدور قصص جديدة.</span><span class="en" lang="en">I agree to get emails from Keryoza about the launch and new stories.</span></label>
+            <a class="btn-ticket" href="mailto:support@keryoza.com" data-join-btn>
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="ar">أبلغوني عند الإطلاق</span><span class="en" lang="en">Tell me at launch</span>
+            </a>
+            <p class="notice"><span class="ar">يفتح الزر تطبيق البريد لديكم برسالة جاهزة إلى <bdi lang="en">support@keryoza.com</bdi>. نستخدم بريدكم لإبلاغكم بالإطلاق والقصص الجديدة فقط، ولا نشاركه مع أحد، ونحذفه متى طلبتم.</span><span class="en" lang="en">The button opens your email app with a ready message to support@keryoza.com. We use your email only to tell you about the launch and new stories, never share it, and delete it whenever you ask.</span></p>
+            <p class="join-msg info" role="status" aria-live="polite" data-join-msg></p>
+          </div>
+          <template data-join-lines>
+            <b data-k="mail"><span class="ar">فتحنا لكم رسالة جاهزة. اضغطوا «إرسال» لتكونوا معنا. لم يُفتح البريد؟ راسلونا على <bdi lang="en">support@keryoza.com</bdi>.</span><span class="en" lang="en">Your ready email is open. Press Send and you're in. No email app opened? Write to support@keryoza.com.</span></b>
+            <b data-k="subject"><span class="ar">كِريوزا: أبلغوني عند الإطلاق</span><span class="en" lang="en">Keryoza: tell me at launch</span></b>
+            <b data-k="body"><span class="ar">مرحبًا كِريوزا،
+أرجو أن تُبلغوني عند إطلاق التطبيق وعند صدور قصص جديدة.
+شكرًا!</span><span class="en" lang="en">Hi Keryoza,
+Please let me know when the app launches and when new stories come out.
+Thank you!</span></b>
+          </template>
+        </div>
+
+        <div class="ticket-stub" aria-hidden="true">
+          <img src="assets/logo.svg" width="56" height="56" alt="">
+          <span class="stub-word" lang="en" dir="ltr">KERYOZA</span>
+          <span class="stub-no"><span class="ar">أوائل العائلات</span><span class="en" lang="en">First families</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="join-foot">
+      <div class="stores">
+        <span class="store"><img src="assets/store-google-play.png" width="28" height="32" alt=""><span><b lang="en" dir="ltr">Google Play</b><small class="ar">قريبًا</small><small class="en" lang="en">Coming soon</small></span></span>
+        <span class="store"><img src="assets/store-app-store.png" width="32" height="32" alt=""><span><b lang="en" dir="ltr">App Store</b><small class="ar">قريبًا</small><small class="en" lang="en">Coming soon</small></span></span>
+      </div>
+      <p class="chant"><span class="ar">مغامرة في كل مكان</span><span class="en" lang="en">An adventure everywhere</span></p>
+      <p class="slogan" lang="en" dir="ltr">Different Screen <span aria-hidden="true">·</span> <strong>NOT</strong> Less Screen</p>
+      <p class="mail-line"><span class="ar">أسئلة؟ راسلونا على</span><span class="en" lang="en">Questions? Write to</span> <a class="mail" href="mailto:support@keryoza.com" lang="en" dir="ltr" data-mail>support@keryoza.com</a> <button type="button" class="btn-copy" data-copy="support@keryoza.com"><span data-copy-idle><span class="ar">نسخ</span><span class="en" lang="en">Copy</span></span><span data-copy-done hidden><span class="ar">تمّ النسخ</span><span class="en" lang="en">Copied</span></span></button></p>
+    </div>
+  </section>
 </main>
 
 <footer class="sill">
   <span class="hands" aria-hidden="true"><i></i><i></i></span>
   <!-- Founder 2026-10-29: privacy and terms links come back at launch (the pages stay live). -->
-  <nav aria-label="تواصل">
-    <a href="mailto:support@keryoza.com" lang="en" dir="ltr">support@keryoza.com</a>
-  </nav>
-  <p>© ٢٠٢٦ كِريوزا</p>
+  <nav aria-label="تواصل"><a href="mailto:support@keryoza.com" lang="en" dir="ltr">support@keryoza.com</a></nav>
+  <p><span class="ar">© ٢٠٢٦ كِريوزا</span><span class="en" lang="en">© 2026 Keryoza</span></p>
 </footer>
 </body>
 </html>
