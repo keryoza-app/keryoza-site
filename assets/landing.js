@@ -212,11 +212,14 @@
     hallOn = true; hall.classList.add("on");
     hallWorld.appendChild(exList); hallWorld.appendChild(hallEnd);
     hallLayout();
+    // far off screen the whole 3D view is switched off, so its GPU layers cost nothing on the other sections
+    if ("IntersectionObserver" in window) new IntersectionObserver(function (es) { hall.classList.toggle("near", es[0].isIntersecting); }, { rootMargin: "100% 0px" }).observe(hall);
+    else hall.classList.add("near");
   }
   function hallLayout() {
     if (!hallOn) return;
     var st = $(".sticky", hall), W = st.clientWidth, Ht = st.clientHeight, nar = W < 760;
-    var per = nar ? 560 : 900, hw = W / 2, top = Ht * 0.46, bot = Ht * 0.54, S = 320;
+    var per = nar ? 560 : 900, hw = W / 2, top = Ht * 0.46, bot = Ht * 0.54;
     var ew = nar ? Math.min(W * 0.6, 250) : Math.min(W * 0.24, Ht * 0.4, 380);
     var G = nar ? 560 : Math.max(760, ew * 2.1), D0 = nar ? 820 : 1150;
     var len = D0 + (exs.length - 1) * G + G * 1.4;
@@ -225,13 +228,7 @@
     hall.style.setProperty("--ew", ew + "px");
     segs.forEach(function (sg) { sg.el.remove(); }); segs = [];
     var frag = document.createDocumentFragment();
-    function seg(cls, w, h, tf, z0) { var el = document.createElement("i"); el.className = "seg " + cls; el.style.width = w + "px"; el.style.height = h + "px"; el.style.transform = tf; frag.appendChild(el); segs.push({ el: el, z0: z0, gone: false }); }
-    for (var z = 0; z < len + S; z += S) {
-      seg("wa", S + 1, top + bot, "translate3d(" + (-hw) + "px," + (-top) + "px," + (-z) + "px) rotateY(90deg)", z);
-      seg("wb", S + 1, top + bot, "translate3d(" + hw + "px," + (-top) + "px," + (-(z + S)) + "px) rotateY(-90deg)", z);
-      seg("fl", W, S + 1, "translate3d(" + (-hw) + "px," + bot + "px," + (-(z + S)) + "px) rotateX(90deg)", z);
-      seg("ce", W, S + 1, "translate3d(" + (-hw) + "px," + (-top) + "px," + (-z) + "px) rotateX(-90deg)", z);
-    }
+    hallRoom(W, Ht, per, hw, top, bot, len);
     // arches: a portal every two frames, the corridor's rhythm
     for (var a = D0 + G * 1.5; a < len - G * 0.5; a += G * 2) {
       var el = document.createElement("i"); el.className = "seg arch"; el.style.width = W + "px"; el.style.height = (top + bot) + "px";
@@ -243,6 +240,29 @@
     exs.forEach(function (ex, i) { ex._d = D0 + i * G; ex._side = ex.getAttribute("data-side"); });
     activeEx = -2;
     scrubHall(progress(hall));
+  }
+  // The corridor's walls, floor and ceiling as ONE flat drawing in the same perspective as the 3D world.
+  // They used to be ~70 3D pieces (one GPU layer each): ~500 MB on a Galaxy A26, a crashed tab and flicker.
+  // Plain colour looks the same from every step, so only the pictures, arches and end wall still move in 3D.
+  var room = null;
+  function hallRoom(W, H, per, hw, top, bot, far) {
+    if (!room) { room = document.createElementNS("http://www.w3.org/2000/svg", "svg"); room.setAttribute("class", "hall-room"); room.setAttribute("aria-hidden", "true"); room.setAttribute("preserveAspectRatio", "none"); hallView.insertBefore(room, hallWorld); }
+    room.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var cx = W / 2, cy = top, k = per / (per + far), f = function (n) { return n.toFixed(1); };
+    function P(x, y) { return f(cx + (x - cx) * k) + "," + f(cy + (y - cy) * k); }   // the same screen point, pushed back to the far end
+    function quad(x0, y0, x1, y1, fill) { return '<polygon fill="' + fill + '" points="' + f(x0) + "," + f(y0) + " " + f(x1) + "," + f(y1) + " " + P(x1, y1) + " " + P(x0, y0) + '"/>'; }
+    function wall(x, fill) { return '<polygon fill="' + fill + '" points="' + f(x) + ",0 " + P(x, 0) + " " + P(x, H) + " " + f(x) + "," + H + '"/>'; }
+    var rail = cy - top + 0.7 * (top + bot), s = "";
+    s += quad(0, 0, W, 0, "#170B0C");                                     // ceiling
+    s += quad(0, H, W, H, "#24150F");                                     // floor
+    for (var i = 1; i < 11; i++) { var x = W * i * 0.09 + W * 0.05; s += '<line stroke="#1C100B" stroke-width="2" x1="' + f(x) + '" y1="' + H + '" x2="' + P(x, H).replace(",", '" y2="') + '"/>'; }   // floor boards
+    s += quad(W * 0.33, H, W * 0.67, H, "#B98A3E") + quad(W * 0.336, H, W * 0.664, H, "#8E3324");                             // the red runner, gold edged
+    s += wall(0, "#2A1416") + wall(W, "#2A1416");                         // walls
+    s += '<polygon fill="#1F0E10" points="0,' + f(rail) + " " + P(0, rail) + " " + P(0, H) + " 0," + H + '"/>';               // dark wainscot under the rail
+    s += '<polygon fill="#1F0E10" points="' + W + "," + f(rail) + " " + P(W, rail) + " " + P(W, H) + " " + W + "," + H + '"/>';
+    s += '<line stroke="#B98A3E" stroke-width="3" x1="0" y1="' + f(rail) + '" x2="' + P(0, rail).replace(",", '" y2="') + '"/>';   // gold rail
+    s += '<line stroke="#B98A3E" stroke-width="3" x1="' + W + '" y1="' + f(rail) + '" x2="' + P(W, rail).replace(",", '" y2="') + '"/>';
+    room.innerHTML = s;
   }
   function showHud(i) {
     clearTimeout(hudT);
@@ -260,11 +280,14 @@
     var g = HG, cz = (g.len - g.per * 0.08) * clamp((p - 0.03) / 0.94, 0, 1);
     hallWorld.style.setProperty("--cz", cz.toFixed(1) + "px");
     hallSign.style.setProperty("--so", (1 - smooth(p / 0.05)).toFixed(3));
-    segs.forEach(function (sg) { var gone = sg.z0 - cz < 4; if (gone !== sg.gone) { sg.gone = gone; sg.el.classList.toggle("gone", gone); } });
+    // Only the stretch near the camera is drawn: every visible piece is a GPU layer, and the whole corridor at once
+    // took ~850 MB on a Galaxy A26 and crashed the tab. Far pieces are tiny and dark, so hiding them doesn't show.
+    var far = g.G * 5;
+    segs.forEach(function (sg) { var d = sg.z0 - cz, gone = d < 4 || d > far; if (gone !== sg.gone) { sg.gone = gone; sg.el.classList.toggle("gone", gone); } });
     var best = -1, bestD = 1e9, yc = -g.Ht * 0.04;
     exs.forEach(function (ex, i) {
       var rel = ex._d - cz;
-      var op = smooth((rel - 20) / 340) * (1 - smooth((rel - g.G * 4) / (g.G * 2.5)));   // passes softly; far ones melt into the dark
+      var op = smooth((rel - 20) / 340) * (1 - smooth((rel - g.G * 3) / (g.G * 2)));   // passes softly; far ones melt into the dark before the walls end
       ex.style.opacity = op.toFixed(3);
       ex.style.visibility = op <= 0.001 ? "hidden" : "visible";
       ex.style.transform = ex._side === "a"
@@ -473,7 +496,10 @@
     var ticket = $("[data-ticket]"), msg = $("[data-join-msg]"), tpl = $("template[data-join-lines]").content;
     function line(k) { var el = $('[data-k="' + k + '"] .' + lang, tpl); return el ? el.textContent : ""; }
     var ok = $("[data-join-ok]");
-    function sync() { btn.setAttribute("aria-disabled", ok.checked ? "false" : "true"); }
+    function sync() {
+      btn.setAttribute("aria-disabled", ok.checked ? "false" : "true");
+      if (!ok.checked) { btn.href = "mailto:support@keryoza.com"; msg.textContent = ""; ticket.classList.remove("stamped"); }   // consent taken back: no leftover "email is open"
+    }
     ok.addEventListener("change", sync); sync();
     btn.addEventListener("click", function (ev) {
       if (!ok.checked) { ev.preventDefault(); ok.focus(); return; }   // keyboard Enter skips the CSS block

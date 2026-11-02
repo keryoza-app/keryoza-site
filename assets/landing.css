@@ -338,7 +338,7 @@ h1 { font-size: clamp(2.9rem, 6.6vw, 6rem); line-height: 1.38; }
 .door:hover { transform: translateY(-.4rem); box-shadow: 0 0 0 .35rem #FFEFCD, 0 0 0 .5rem var(--gold), 0 2.4rem 3rem -1rem rgba(31, 18, 40, .65); }
 
 /* the 3D walk: a dark, warm gallery lit by its pictures (art director, round 4) */
-.hall.on { height: 1000vh; padding: 0; }
+.hall.on { height: 1000vh; padding: 0; background: #1A0B0D; }   /* dark under the sticky view when the phone toolbars hide */
 .hall.on .sticky { position: sticky; top: var(--bar-h); height: calc(100svh - var(--bar-h)); overflow: hidden;
   background: radial-gradient(22% 20% at 50% 46%, rgba(255, 217, 138, .5), rgba(255, 217, 138, 0) 100%),
               linear-gradient(90deg, #1A0B0D, #2A1416 30%, #2A1416 70%, #1A0B0D); }
@@ -347,25 +347,16 @@ h1 { font-size: clamp(2.9rem, 6.6vw, 6rem); line-height: 1.38; }
   background: radial-gradient(16% 15% at 50% 46%, rgba(255, 222, 150, .55), rgba(255, 222, 150, 0) 100%),
               radial-gradient(85% 80% at 50% 46%, rgba(23, 11, 12, 0) 55%, rgba(23, 11, 12, .55) 100%); }
 .hall-world { position: absolute; left: 50%; top: 46%; width: 0; height: 0; transform-style: preserve-3d; transform: translate3d(0, 0, var(--cz, 0px)); }
+.hall-room { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hall.on:not(.near) .hall-view { display: none; }   /* far away: no 3D layers at all (JS toggles .near) */
 .seg { position: absolute; left: 0; top: 0; transform-origin: 0 0; backface-visibility: hidden; }
-.seg.wa, .seg.wb {
-  background:
-    linear-gradient(transparent 70%, #8C6A2E 70%, #B98A3E 70.5%, #6B4E22 71%, transparent 71%),
-    linear-gradient(transparent 71%, #1F0E10 71%),
-    repeating-linear-gradient(90deg, rgba(232, 182, 90, 0) 0 49%, rgba(232, 182, 90, .06) 49% 50%, rgba(232, 182, 90, 0) 50% 100%),
-    linear-gradient(#24110F, #2E1617 60%, #2A1416); }
-.seg.fl { background:
-    linear-gradient(90deg, transparent 33%, #B98A3E 33%, #B98A3E 33.6%, #7A2A1E 33.6%, #8E3324 50%, #7A2A1E 66.4%, #B98A3E 66.4%, #B98A3E 67%, transparent 67%),
-    linear-gradient(90deg, rgba(255, 222, 150, 0) 10%, rgba(255, 222, 150, .07) 50%, rgba(255, 222, 150, 0) 90%),
-    repeating-linear-gradient(90deg, #24150F 0 8.6%, #1C100B 8.6% 9%), #24150F; }
-.seg.ce { background: radial-gradient(14% 30% at 50% 50%, rgba(255, 217, 138, .16), rgba(255, 217, 138, 0) 100%), #170B0C; }
 /* an arch every two frames: the corridor's rhythm (a wall with an arched opening, facing you) */
 .seg.arch { pointer-events: none; background: radial-gradient(36% 100% at 50% 100%, rgba(51, 24, 26, 0) 98.5%, #33181A 100%) top / 100% 20% no-repeat;
   filter: drop-shadow(0 0 .2rem rgba(140, 106, 46, .6)); }
 .seg.arch::before, .seg.arch::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14%; background: linear-gradient(90deg, #1A0B0D, #3A1B1A); }
 .seg.arch::before { left: 0; box-shadow: inset -.35rem 0 0 #8C6A2E; }
 .seg.arch::after { right: 0; transform: scaleX(-1); box-shadow: inset -.35rem 0 0 #8C6A2E; }
-.seg.gone { visibility: hidden; }
+.seg.gone { display: none; }   /* removes the GPU layer, not just hides it */
 .hall.on .exhibits { position: absolute; left: 0; top: 0; width: 0; height: 0; display: block; max-width: none; margin: 0; transform-style: preserve-3d; }
 .hall.on .exhibit { position: absolute; left: 0; top: 0; width: var(--ew, 22rem); display: block; transform-origin: 0 0; backface-visibility: hidden; will-change: transform, opacity; }
 /* the picture light: a brass bar and the warm cone it throws on the wall */
