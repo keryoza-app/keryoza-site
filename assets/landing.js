@@ -1,5 +1,5 @@
 /* keryoza.com v3 — the page's own script: no network, no cookies, no tracking. The only thing kept is the
-   language choice (this browser's localStorage). Without this file the page still reads fully (Arabic,
+   language: each language is its own page (/ Arabic, /en/ English), so nothing is kept. Without this file the page still reads fully (Arabic,
    every section, still layouts). The 3D Kio lives in landing-kio.js and listens for "kio:act" events. */
 (function () {
   "use strict";
@@ -11,7 +11,8 @@
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var rtl = function () { return root.getAttribute("dir") === "rtl"; };
   function act(name) { document.dispatchEvent(new CustomEvent("kio:act", { detail: name })); }
-  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+  // The assets folder, wherever this page lives (/ or /en/): this script sits in it.
+  var A = document.currentScript ? document.currentScript.src.replace(/[^\/]*$/, "") : "assets/";
 
   // ---------- Sound: Kio's real recorded lines, only after a tap ----------
   var audio = null, playingBtn = null, audioFrom = null;
@@ -20,7 +21,7 @@
     try {
       if (audio) { audio.pause(); }
       if (playingBtn) playingBtn.classList.remove("playing");
-      audio = new Audio("assets/" + key + ".mp3");
+      audio = new Audio(A + key + ".mp3");
       playingBtn = btn || null; audioFrom = btn || stage;   // where the voice came from: it stops when that leaves the screen
       if (btn) btn.classList.add("playing");
       audio.addEventListener("ended", function () { if (btn) btn.classList.remove("playing"); });
@@ -30,12 +31,11 @@
 
   // ---------- Language ----------
   var lang = "ar";
-  function setLang(l, save) {
+  function setLang(l) {
     lang = l === "en" ? "en" : "ar";
     root.setAttribute("lang", lang);
     root.setAttribute("dir", lang === "en" ? "ltr" : "rtl");
     if (lang === "en") root.setAttribute("data-lang", "en"); else root.removeAttribute("data-lang");
-    if (save) store("kz-lang", lang);
     hallLayout(); scenes.forEach(function (o) { o.cur = -1; });
   }
 
@@ -314,6 +314,25 @@
     bandTracks.forEach(function (t) { t.style.setProperty("--bx", (+t.getAttribute("data-band-track") * (y * 0.22 + 20)).toFixed(1) + "px"); });
   }
 
+  // Scroll parallax (2026-11-05). Every layer moves by the CSS `translate` property only (no layout, no repaint),
+  // so it never fights the hover/reveal `transform`s. Positions come from the parent section (sections never move),
+  // so a moved layer never feeds back into its own position. data-par > 0: drifts faster than the page (near);
+  // < 0: slower (far). The hero props float by their depth; the gold rays behind everything drift slowest.
+  // Decoration only: text never moves against text. Phones move them about a third as far (they sit in the margins).
+  var pars = $$("[data-par]").map(function (el) { return { el: el, f: +el.getAttribute("data-par"), sec: el.closest("section"), v: null }; });
+  var meadow = $(".meadow"), meadowV = null;
+  function setY(o, v) { v = Math.round(v * 2) / 2; if (v !== o.v) { o.v = v; o.el.style.translate = "0 " + v + "px"; } }
+  function scrubPar() {
+    var y = window.scrollY, vh = window.innerHeight;
+    var my = -((y * 0.12) % 160); if (meadow && my !== meadowV) { meadowV = my; meadow.style.translate = "0 " + my.toFixed(1) + "px"; }
+    if (y < vh * 1.4) props.forEach(function (p) { if (!p._o) p._o = { el: p, v: null }; setY(p._o, -y * (+p.getAttribute("data-depth")) * 0.014); });
+    for (var i = 0; i < pars.length; i++) {
+      var o = pars[i], r = o.sec.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > vh + 200) continue;
+      setY(o, (r.top + r.height / 2 - vh / 2) * o.f * (narrow.matches ? 0.35 : 1));
+    }
+  }
+
   // 7. Gains wheel
   var gains = $(".gains"), skills = $$(".skill", gains), gainsPos = 0;
   function scrubGains(p) {
@@ -346,7 +365,7 @@
     requestAnimationFrame(loop);
     var dt = Math.min(0.05, ((now - lastT) / 1000) || 0.016); lastT = now;
     var k = 1 - Math.exp(-dt * 6.5);
-    scrubBand();
+    scrubBand(); scrubPar();
     for (var i = 0; i < scenes.length; i++) {
       var o = scenes[i], r = o.sec.getBoundingClientRect();
       if (r.bottom < -40 || r.top > window.innerHeight + 40) { o.cur = -1; continue; }
@@ -403,7 +422,7 @@
     var leftPct = parseFloat(getComputedStyle(sp).left) / layers[1].offsetWidth * 100, wPct = sp.offsetWidth / layers[1].offsetWidth * 100;
     friend.style.left = (leftPct + wPct / 2 - 2.75) + "%";
     var f = FRIENDS[world][friendIx % FRIENDS[world].length];
-    friend.src = missionPic.src = "assets/" + f + ".webp"; missionName.innerHTML = LINES[f].html;
+    friend.src = missionPic.src = A + f + ".webp"; missionName.innerHTML = LINES[f].html;
   }
   function armHint() { clearTimeout(hintTimer); hintTimer = setTimeout(function () { if (!found && !seenOnce) { say("hint"); act("look"); } }, 6000); }
   function tryStart() { if (started) return; started = true; placeFriend(); if (!tryScrolly) pan(0); else scrubTry(); say("start"); armHint(); }
@@ -530,7 +549,6 @@
   });
 
   // ---------- Start ----------
-  $("[data-lang-toggle]").addEventListener("click", function () { setLang(lang === "en" ? "ar" : "en", true); });
   scenes = [
     { sec: portal, fn: scrubPortal, live: true },
     { sec: hall, fn: scrubHall }, { sec: gains, fn: scrubGains }, { sec: trySec, fn: scrubTry }
@@ -538,5 +556,6 @@
   portalLayout();
   if (reduced) scrubPortal(0.6, 0); else { portal.classList.add("on"); requestAnimationFrame(loop); }
   hallBuild();
-  setLang(location.hash === "#en" ? "en" : (store("kz-lang") || "ar"), false);
+  if (location.hash === "#en" && root.getAttribute("lang") !== "en") location.replace("en/");   // old #en links
+  setLang(root.getAttribute("lang") === "en" ? "en" : "ar");
 })();

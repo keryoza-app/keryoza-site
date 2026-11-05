@@ -43,8 +43,11 @@ img, video { max-width: 100%; }
 :root[data-lang="en"] body { line-height: 1.65; }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-.meadow { position: fixed; inset: 0; width: 100%; height: 100%; fill: var(--gold); opacity: 0.15; pointer-events: none; z-index: 0;
+/* The gold rays sit in a fixed, masked frame; the rays themselves drift up slowly with the scroll (parallax, by
+   whole 160 px pattern tiles, so the loop is seamless). The mask stays still on the frame. */
+.meadow-wrap { position: fixed; inset: 0; overflow: hidden; opacity: 0.15; pointer-events: none; z-index: 0;
   -webkit-mask-image: linear-gradient(#000, rgba(0,0,0,.45) 60%, transparent); mask-image: linear-gradient(#000, rgba(0,0,0,.45) 60%, transparent); }
+.meadow { display: block; width: 100%; height: calc(100% + 160px); fill: var(--gold); will-change: translate; }
 main, .sill { position: relative; z-index: 1; }
 .skip { position: absolute; inset-inline-start: 1rem; top: -4rem; z-index: 60; padding: .5rem 1rem; border-radius: 999px; background: var(--brand-ink); color: var(--cream); }
 .skip:focus { top: .6rem; }
@@ -77,7 +80,8 @@ section { padding-left: var(--gl); padding-right: var(--gr); }
   font: 700 .98rem/1.3 "Baloo Display", system-ui, sans-serif; transition: background-color .25s; }
 .bar-join:hover { background: var(--red-deep); }
 .lang { flex: none; min-height: 2.6rem; padding: .2rem 1rem; border: 1.5px solid var(--gold); border-radius: 999px; background: var(--paper);
-  color: var(--brand-ink); font: 500 .92rem/1 "Readex", "Cairo", system-ui, sans-serif; cursor: pointer; }
+  color: var(--brand-ink); font: 500 .92rem/1 "Readex", "Cairo", system-ui, sans-serif; cursor: pointer;
+  display: inline-flex; align-items: center; text-decoration: none; }
 .lang:hover { background: #FFEFCD; }
 @media (max-width: 60rem) { .nav { display: none; } .bar { justify-content: space-between; } }
 @media (max-width: 30rem) { .bar-join { display: none; } }
@@ -631,6 +635,40 @@ h1 { font-size: clamp(2.9rem, 6.6vw, 6rem); line-height: 1.38; }
 }
 
 /* ===== 9. Features ===== */
+/* Floating friends beside "why" and the questions: decoration that drifts at its own depth (data-par). */
+.why, .faq { position: relative; }
+.drift { position: absolute; top: 0; bottom: 0; left: 50%; width: 100vw; margin-left: -50vw; pointer-events: none; z-index: -1; }
+.drift img { position: absolute; height: auto; opacity: .9; filter: drop-shadow(0 .7rem .6rem rgba(99,19,21,.14)); }
+.drift .d1 { width: clamp(4.5rem, 9vw, 8rem); inset-inline-start: max(-2rem, calc(50% - 34rem)); top: 18%; rotate: -8deg; }
+.drift .d2 { width: clamp(2.4rem, 4vw, 3.6rem); inset-inline-end: max(.5rem, calc(50% - 30rem)); top: 12%; rotate: 14deg; filter: blur(.5px); }
+.drift .d3 { width: clamp(4rem, 8vw, 7rem); inset-inline-end: max(-1.5rem, calc(50% - 35rem)); bottom: 6%; rotate: 6deg; }
+.drift .d4 { width: clamp(3.6rem, 7vw, 6rem); inset-inline-end: max(-1rem, calc(50% - 36rem)); top: 8%; rotate: 10deg; }
+.drift .d5 { width: clamp(2.6rem, 4.4vw, 4rem); inset-inline-start: max(.5rem, calc(50% - 34rem)); top: 46%; rotate: -12deg; filter: blur(.5px); }
+.drift .d6 { width: clamp(4rem, 8vw, 7rem); inset-inline-start: max(-1.5rem, calc(50% - 37rem)); bottom: 4%; rotate: -6deg; }
+/* Phones have no side margins: two small friends per section sit in the top and bottom padding, clear of the text. */
+@media (max-width: 40rem) {
+  .drift img { width: 3.4rem !important; opacity: .85; }
+  .drift .d2, .drift .d5 { display: none; }
+  .drift .d1, .drift .d4 { top: .4rem; bottom: auto; }
+  .drift .d3, .drift .d6 { top: auto; bottom: .2rem; }
+  .drift .d1, .drift .d6 { inset-inline-start: .6rem; inset-inline-end: auto; }
+  .drift .d3, .drift .d4 { inset-inline-end: .6rem; inset-inline-start: auto; }
+}
+
+/* What is Keryoza + parents' questions */
+.faq { max-width: 50rem; margin-inline: auto; padding-block: clamp(3rem, 8vw, 6rem); text-align: center; }
+.faq h2 { margin-bottom: 1.2rem; }
+.what { margin: 0 auto 2rem; max-width: 42rem; font-size: clamp(1.02rem, 1.5vw, 1.15rem); line-height: 1.95; color: var(--ink); }
+.qa { display: grid; gap: .7rem; text-align: start; }
+.qa details { border-radius: 1.2rem; background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(232, 182, 90, .45); transition: box-shadow .3s var(--ease); }
+.qa details[open] { box-shadow: inset 0 0 0 1.5px rgba(232, 182, 90, .8), 0 .8rem 1.4rem -1rem rgba(99, 19, 21, .3); }
+.qa summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.3rem; cursor: pointer; list-style: none;
+  font: 700 1.12rem/1.5 "Baloo Display", "Readex", system-ui, sans-serif; color: var(--brand-ink); }
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary::after { content: ""; flex: none; width: .65rem; height: .65rem; border: solid var(--red); border-width: 0 2.5px 2.5px 0; rotate: 45deg; translate: 0 -.15rem; transition: rotate .3s var(--ease), translate .3s var(--ease); }
+.qa details[open] summary::after { rotate: 225deg; translate: 0 .15rem; }
+.qa details p { margin: 0; padding: 0 1.3rem 1.1rem; font-size: .98rem; line-height: 1.8; color: var(--ink-soft); }
+
 .features { max-width: 72rem; margin-inline: auto; padding-block: clamp(3rem, 8vw, 6rem); text-align: center; }
 .features h2 { margin-bottom: 2rem; }
 .tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: start; }
@@ -737,6 +775,7 @@ h1 { font-size: clamp(2.9rem, 6.6vw, 6rem); line-height: 1.38; }
   .wheel-nav { display: none; }
   .walk-hint i::after { animation: none; }
   .prop, .reveal, .tiles li, .layer, .friend, .door { transition: none; }
+  .qa details, .qa summary::after { transition: none; }
   .reveal.pre, .tiles.pre li { opacity: 1; transform: none; }
 }
 

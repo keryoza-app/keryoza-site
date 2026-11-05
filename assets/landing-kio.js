@@ -48,7 +48,7 @@ function start() {
   let yaw = 0, yawT = 0, hop = 0, look = 0, visibleWanted = false;   // + jump, giggle, peek in tick()
 
   const slow = setTimeout(() => root.classList.add("kio2d"), 12000);   // very slow line: posters meanwhile
-  new GLTFLoader().load("assets/kio.glb", (g) => {
+  new GLTFLoader().load(new URL("kio.glb", import.meta.url).href, (g) => {
     clearTimeout(slow);
     model = g.scene;
     model.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });   // skinned parts were culled near edges

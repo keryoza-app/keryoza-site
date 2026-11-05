@@ -1,0 +1,5 @@
+# keryoza.com: every search engine and AI assistant is welcome.
+User-agent: *
+Allow: /
+
+Sitemap: https://keryoza.com/sitemap.xml
